@@ -1,0 +1,359 @@
+/* ============================================
+   Global Styles - Live Lottery App
+   クリーン・モダンテーマ
+   ============================================ */
+
+:root {
+  --color-primary: #7c3aed;
+  --color-primary-dark: #6d28d9;
+  --color-primary-light: #a78bfa;
+  --color-primary-bg: #f5f3ff;
+  --color-accent: #ec4899;
+  --color-gold: #f59e0b;
+  --color-gold-bg: #fffbeb;
+  --color-success: #059669;
+  --color-danger: #dc2626;
+  --color-text: #1e1b4b;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-bg: #f9fafb;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --radius: 10px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* --- Card --- */
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  background: #fff;
+}
+
+/* --- Badge --- */
+.badge {
+  font-weight: 500;
+  padding: 0.35em 0.75em;
+  border-radius: 6px;
+}
+
+/* --- Buttons --- */
+.btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.btn-outline-primary {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* --- Navbar --- */
+.navbar-custom {
+  background-color: var(--color-text) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar-custom .navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.navbar-custom .nav-link {
+  font-weight: 500;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+
+.navbar-custom .nav-link:hover,
+.navbar-custom .nav-link.router-link-active {
+  opacity: 1;
+}
+
+/* --- Page Header --- */
+.page-header {
+  background-color: var(--color-primary);
+  border-radius: var(--radius);
+  padding: 1.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+
+.page-header h2 {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.page-header p {
+  opacity: 0.85;
+  margin-bottom: 0;
+}
+
+.page-header-admin {
+  background-color: var(--color-text);
+}
+
+/* --- Info Grid --- */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background-color: var(--color-bg);
+  border-radius: 8px;
+}
+
+.info-label {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.info-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* --- Stat Card --- */
+.stat-card {
+  background-color: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.stat-card .stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.stat-card .stat-label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+/* --- Winner Card --- */
+.winner-card {
+  background-color: var(--color-gold-bg);
+  border: 1px solid #fde68a;
+}
+
+/* --- Status Border --- */
+.status-won {
+  border-left: 3px solid var(--color-success);
+}
+.status-lost {
+  border-left: 3px solid var(--color-danger);
+}
+.status-pending {
+  border-left: 3px solid var(--color-gold);
+}
+
+/* --- Collapsible --- */
+.collapse-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+
+.collapse-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  font-size: 0.75em;
+}
+
+.collapse-arrow.expanded {
+  transform: rotate(90deg);
+}
+
+/* --- Route Transition --- */
+.fade-slide-enter-active {
+  transition: all 0.2s ease-out;
+}
+.fade-slide-leave-active {
+  transition: all 0.15s ease-in;
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+}
+
+/* --- Confetti --- */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* --- Lottery Animation (3-Phase) --- */
+.lottery-stage {
+  position: relative;
+  width: 320px;
+  height: 200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  background-color: var(--color-text);
+  overflow: hidden;
+}
+
+.lottery-countdown {
+  font-size: 5rem;
+  font-weight: 800;
+  color: var(--color-primary-light);
+  animation: countdown-pulse 1s ease-in-out;
+}
+
+@keyframes countdown-pulse {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.lottery-name-card {
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 200px;
+  text-align: center;
+}
+
+.lottery-name-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e0e7ff;
+}
+
+.lottery-complete .lottery-name-card {
+  border-color: var(--color-gold);
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.lottery-complete .lottery-name-text {
+  color: var(--color-gold);
+}
+
+/* --- Form Focus --- */
+.form-control:focus {
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* --- Success Check Animation --- */
+.success-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid var(--color-success);
+  color: var(--color-success);
+  font-size: 1.5rem;
+  animation: check-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* --- Stats Summary --- */
+.stats-summary {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--color-primary-bg);
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+.stats-summary-item {
+  text-align: center;
+}
+
+.stats-summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.stats-summary-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}

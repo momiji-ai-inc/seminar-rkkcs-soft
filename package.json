@@ -1,0 +1,26 @@
+{
+  "name": "seminar-rkkcs-soft",
+  "version": "1.0.0",
+  "description": "ライブ抽選アプリ - RKKCS社内研修ハンズオン教材",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run serve",
+    "build": "cd frontend && npm run build",
+    "seed": "cd backend && npm run seed",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^9.20.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-vue": "^9.32.0",
+    "prettier": "^3.5.1",
+    "typescript-eslint": "^8.24.0"
+  }
+}
