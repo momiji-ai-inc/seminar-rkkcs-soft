@@ -298,6 +298,100 @@ body {
   color: var(--color-gold);
 }
 
+/* --- Winner Highlight (当選確定時) --- */
+.lottery-name-card.is-winner {
+  border-color: var(--color-gold);
+  background: rgba(245, 158, 11, 0.15);
+  animation: winner-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.lottery-name-card.is-winner .lottery-name-text {
+  color: var(--color-gold);
+}
+
+@keyframes winner-pop {
+  0% {
+    transform: scale(0.85);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* --- Lottery Progress Bar --- */
+.lottery-progress {
+  width: 320px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.lottery-progress-bar {
+  height: 100%;
+  background: var(--color-gold);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* --- Revealed Winners List (ピルバッジ) --- */
+.lottery-revealed {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  max-width: 400px;
+  margin-top: 0.75rem;
+}
+
+.lottery-revealed-item {
+  display: inline-block;
+  padding: 0.25em 0.7em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 20px;
+  animation: revealed-fade-in 0.35s ease-out;
+}
+
+@keyframes revealed-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --- TransitionGroup for revealed items --- */
+.revealed-item-enter-active {
+  animation: revealed-fade-in 0.35s ease-out;
+}
+
+.revealed-item-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.revealed-item-leave-to {
+  opacity: 0;
+}
+
+/* --- Batch phase --- */
+.lottery-batch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  animation: winner-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 /* --- Form Focus --- */
 .form-control:focus {
   border-color: var(--color-primary-light);

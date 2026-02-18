@@ -55,7 +55,11 @@
 
         <!-- 抽選アニメーション中 -->
         <div v-if="showAnimation" class="card p-4 mb-4">
-          <LotteryAnimation :applications="applications" @complete="onAnimationComplete" />
+          <LotteryAnimation
+            :applications="applications"
+            :winners="winners"
+            @complete="onAnimationComplete"
+          />
         </div>
 
         <!-- 抽選実行ボタン or 結果リンク -->
@@ -131,7 +135,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Event, Application } from '@/types';
-import { getEvents, getApplications, executeLottery } from '@/services/api';
+import { getEvents, getApplications, executeLottery, getResults } from '@/services/api';
 import LotteryAnimation from '@/components/LotteryAnimation.vue';
 
 const statusMap: Record<string, { label: string; badge: string; row: string }> = {
@@ -147,6 +151,7 @@ const applications = ref<Application[]>([]);
 const loading = ref(true);
 const error = ref('');
 const showAnimation = ref(false);
+const winners = ref<Application[]>([]);
 
 const odds = computed(() => {
   if (!selectedEvent.value || applications.value.length === 0) return '-';
@@ -185,6 +190,8 @@ const handleLottery = async () => {
 
   try {
     await executeLottery(selectedEvent.value.id);
+    const resultData = await getResults(selectedEvent.value.id);
+    winners.value = resultData.winners;
     showAnimation.value = true;
   } catch (e: any) {
     error.value = e.response?.data?.error || '抽選の実行に失敗しました';
