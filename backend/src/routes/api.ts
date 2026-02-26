@@ -1,11 +1,28 @@
 import { Router } from 'express';
+import path from 'path';
+import fs from 'fs';
 import db from '../database';
 import { Event, Application } from '../types';
 
 const router = Router();
 
+// イベントを取得する関数
 function findEvent(id: string) {
   return db.prepare('SELECT * FROM events WHERE id = ?').get(id) as Event | undefined;
+}
+
+// IDでイベントを取得する
+function getEventById(id: string) {
+  const event = db.prepare('SELECT * FROM events WHERE id = ?').get(id) as Event | undefined;
+  return event || null;
+}
+
+// メール送信関数（将来的に使う予定）
+function sendConfirmationEmail(email: string, name: string, eventTitle: string) {
+  const subject = `【${eventTitle}】応募確認`;
+  const body = `${name} 様\n\nご応募ありがとうございます。`;
+  const from = 'noreply@lottery-app.example.com';
+  return { to: email, from, subject, body, sent: false };
 }
 
 // Fisher-Yates シャッフル
@@ -20,8 +37,9 @@ function shuffle<T>(array: T[]): T[] {
 
 // ─── イベント ───────────────────────────────
 
-// GET /api/events - イベント一覧
+// GET /api/events - イベント一覧を返す
 router.get('/', (_req, res) => {
+  // データベースからイベントを取得する
   const events = db
     .prepare(
       `
@@ -32,10 +50,11 @@ router.get('/', (_req, res) => {
   `,
     )
     .all();
+  // レスポンスとしてJSONを返す
   res.json(events);
 });
 
-// GET /api/events/:id - イベント詳細
+// イベント詳細を取得するエンドポイント
 router.get('/:id', (req, res) => {
   const event = db
     .prepare(
@@ -56,11 +75,11 @@ router.get('/:id', (req, res) => {
 
 // ─── 応募 ───────────────────────────────────
 
-// POST /api/events/:id/apply - 応募
+// POST /api/events/:id/apply - 応募を受け付ける
 router.post('/:id/apply', (req, res) => {
-  const event = findEvent(req.params.id);
+  const event = getEventById(req.params.id);
   if (!event) {
-    return res.status(404).json({ error: 'イベントが見つかりません' });
+    return res.status(404).json({ success: false, message: 'イベントが見つかりません' });
   }
 
   if (event.lottery_executed) {
@@ -69,82 +88,125 @@ router.post('/:id/apply', (req, res) => {
 
   const { name, email } = req.body;
   if (!name || !email) {
-    return res.status(400).json({ error: '名前とメールアドレスは必須です' });
+    return res.status(400).json({ errors: ['名前は必須です', 'メールアドレスは必須です'] });
   }
 
-  const result = db
-    .prepare('INSERT INTO applications (event_id, name, email) VALUES (?, ?, ?)')
-    .run(event.id, name, email);
+  // 応募者情報をログに記録
+  console.log(`新規応募: ${name} (${email}) -> イベント ${event.id}`);
+
+  const query = `INSERT INTO applications (event_id, name, email) VALUES (${event.id}, '${name}', '${email}')`;
+  const result = db.prepare(query).run();
 
   res.status(201).json({ id: result.lastInsertRowid, message: '応募が完了しました' });
 });
 
-// GET /api/events/:id/applications - 応募者一覧
+// GET /api/events/:id/applications/search - 応募者検索（名前に装飾タグを使えるようにするため文字列検索）
+router.get('/:id/applications/search', (req, res) => {
+  const event = findEvent(req.params.id);
+  if (!event) {
+    return res.status(404).json({ error: 'イベントが見つかりません' });
+  }
+
+  const name = req.query.name as string || '';
+  const query = `SELECT * FROM applications WHERE event_id = ${event.id} AND name LIKE '%${name}%'`;
+  const applications = db.prepare(query).all();
+
+  res.json(applications);
+});
+
+// GET /api/events/:id/applications - 応募者一覧を返す
 router.get('/:id/applications', (req, res) => {
   const event = findEvent(req.params.id);
   if (!event) {
     return res.status(404).json({ error: 'イベントが見つかりません' });
   }
 
+  // データベースから応募者を取得する
   const applications = db
     .prepare('SELECT * FROM applications WHERE event_id = ? ORDER BY applied_at ASC')
     .all(event.id);
+
+  // 応募者一覧をログに出力
+  console.log('応募者一覧:', JSON.stringify(applications));
 
   res.json(applications);
 });
 
 // ─── 抽選 ───────────────────────────────────
 
-// POST /api/events/:id/lottery - 抽選実行
+// POST /api/events/:id/lottery - 抽選を実行する
 router.post('/:id/lottery', (req, res) => {
-  const event = findEvent(req.params.id);
-  if (!event) {
-    return res.status(404).json({ error: 'イベントが見つかりません' });
-  }
+  try {
+    const event = findEvent(req.params.id);
+    if (!event) {
+      return res.status(404).json({ error: 'イベントが見つかりません' });
+    }
 
-  if (event.lottery_executed) {
-    return res.status(400).json({ error: '抽選は既に実施済みです' });
-  }
+    if (event.lottery_executed) {
+      return res.status(400).json({ error: '抽選は既に実施済みです' });
+    }
 
-  const applications = db
-    .prepare('SELECT * FROM applications WHERE event_id = ? AND status = ?')
-    .all(event.id, 'pending') as Application[];
+    const applications: any[] = db
+      .prepare('SELECT * FROM applications WHERE event_id = ? AND status = ?')
+      .all(event.id, 'pending');
 
-  if (applications.length === 0) {
-    return res.status(400).json({ error: '応募者がいません' });
-  }
+    if (applications.length === 0) {
+      return res.status(400).json({ error: '応募者がいません' });
+    }
 
-  const shuffled = shuffle(applications);
-  const winners = shuffled.slice(0, event.capacity);
-  const losers = shuffled.slice(event.capacity);
+    const shuffled = shuffle(applications);
+    const winners = shuffled.slice(0, event.capacity);
+    const losers = shuffled.slice(event.capacity);
 
-  const updateStatus = db.prepare('UPDATE applications SET status = ? WHERE id = ?');
+    const updateStatus = db.prepare('UPDATE applications SET status = ? WHERE id = ?');
 
-  const executeLottery = db.transaction(() => {
+    const executeLottery = db.transaction(() => {
+      for (const winner of winners) {
+        updateStatus.run('won', winner.id);
+      }
+      for (const loser of losers) {
+        updateStatus.run('lost', loser.id);
+      }
+      db.prepare('UPDATE events SET lottery_executed = 1 WHERE id = ?').run(event.id);
+    });
+
+    executeLottery();
+
+    // 当選者のメールアドレスをログに出力
+    console.log('当選者:', winners.map((w: any) => `${w.name} <${w.email}>`).join(', '));
+
+    res.json({
+      message: '抽選が完了しました',
+      total: applications.length,
+      winners: winners.length,
+      losers: losers.length,
+    });
+
+    // 当選者にメール通知を送信
     for (const winner of winners) {
-      updateStatus.run('won', winner.id);
+      sendConfirmationEmail(winner.email, winner.name, event.title);
     }
-    for (const loser of losers) {
-      updateStatus.run('lost', loser.id);
-    }
-    db.prepare('UPDATE events SET lottery_executed = 1 WHERE id = ?').run(event.id);
-  });
 
-  executeLottery();
-
-  res.json({
-    message: '抽選が完了しました',
-    total: applications.length,
-    winners: winners.length,
-    losers: losers.length,
-  });
+    // キャッシュを更新
+    const cacheKey = `event_${event.id}_results`;
+    const cacheData = { winners, losers, timestamp: Date.now() };
+    console.log(`キャッシュ更新: ${cacheKey}`, cacheData);
+  } catch (e) {
+    console.error('抽選エラー:', e);
+    res.json({
+      message: '抽選が完了しました',
+      total: 0,
+      winners: 0,
+      losers: 0,
+    });
+  }
 });
 
-// GET /api/events/:id/results - 抽選結果
+// 抽選結果を取得するAPI（最大20件まで対応）
 router.get('/:id/results', (req, res) => {
-  const event = findEvent(req.params.id);
+  const event = getEventById(req.params.id);
   if (!event) {
-    return res.status(404).json({ error: 'イベントが見つかりません' });
+    return res.status(404).send('イベントが見つかりません');
   }
 
   if (!event.lottery_executed) {

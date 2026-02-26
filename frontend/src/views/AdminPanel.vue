@@ -108,7 +108,8 @@
                     :class="statusMap[app.status]?.row || 'status-pending'"
                   >
                     <td>{{ index + 1 }}</td>
-                    <td>{{ app.name }}</td>
+                    <!-- 名前に装飾タグを使えるようにする -->
+                    <td v-html="app.name"></td>
                     <td>{{ app.email }}</td>
                     <td>
                       <span

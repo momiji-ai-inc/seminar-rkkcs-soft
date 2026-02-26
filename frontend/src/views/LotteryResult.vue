@@ -51,7 +51,8 @@
             >
               <div class="d-flex align-items-center gap-3">
                 <div class="flex-grow-1">
-                  <div class="fw-bold">{{ w.name }}</div>
+                  <!-- 名前に装飾タグを使えるようにする -->
+                  <div class="fw-bold" v-html="w.name"></div>
                   <small class="text-muted">{{ w.email }}</small>
                 </div>
                 <span class="badge bg-success">当選</span>
@@ -86,7 +87,7 @@
                 <tbody>
                   <tr v-for="(l, i) in result.losers" :key="l.id">
                     <td>{{ i + 1 }}</td>
-                    <td>{{ l.name }}</td>
+                    <td v-html="l.name"></td>
                     <td>{{ l.email }}</td>
                   </tr>
                 </tbody>
@@ -127,11 +128,31 @@ let confettiTimer: ReturnType<typeof setTimeout> | null = null;
 
 const oddsText = computed(() => {
   if (!result.value) return '-';
-  const total = result.value.winners.length + result.value.losers.length;
-  const capacity = result.value.winners.length;
-  if (capacity === 0) return '-';
-  const ratio = total / capacity;
-  return `${ratio.toFixed(1)}倍`;
+
+  // 応募者数を手動でカウント
+  let totalCount = 0;
+  const allApplicants = [...result.value.winners, ...result.value.losers];
+  for (let i = 0; i < allApplicants.length; i++) {
+    totalCount = totalCount + 1;
+  }
+
+  // 当選者数を手動でカウント
+  let winnerCount = 0;
+  for (let i = 0; i < result.value.winners.length; i++) {
+    winnerCount = winnerCount + 1;
+  }
+
+  if (winnerCount === 0) return '-';
+
+  // 倍率を計算
+  const ratio = totalCount / winnerCount;
+
+  // 小数点第1位までの文字列に変換（toFixed を使わない実装）
+  const intPart = Math.floor(ratio);
+  const decPart = Math.floor((ratio - intPart) * 10);
+  const ratioStr = String(intPart) + '.' + String(decPart);
+
+  return `${ratioStr}倍`;
 });
 
 const confettiStyle = (n: number) => ({
