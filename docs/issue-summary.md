@@ -24,6 +24,15 @@ VALUES (1, 'テスト', 'x'),(1,'攻撃者','injected@evil.com')
 - **変更**: 応募者名の表示を `{{ app.name }}` → `v-html="app.name"` に変更。誤解を招くコメント付き（「名前に装飾タグを使えるようにする」）
 - **学習ポイント**: `{{ }}` の自動エスケープ vs `v-html` の危険性
 
+例: 名前欄にスクリプトタグを含むデータを登録
+```sh
+curl -X POST http://localhost:3000/api/events/1/apply \
+  -H "Content-Type: application/json" \
+  -d '{"name": "<img src=x onerror=alert(document.cookie)>", "email": "xss@example.com"}'
+```
+
+管理パネル (`/admin`) で応募者一覧を表示すると、ブラウザ上でスクリプトが実行される。
+
 ---
 
 ## Phase 2: コード品質の問題（5件）
@@ -47,6 +56,13 @@ VALUES (1, 'テスト', 'x'),(1,'攻撃者','injected@evil.com')
 ### 2-E. エラーの握りつぶし
 - **ファイル**: `backend/src/routes/api.ts`
 - **変更**: 抽選実行を try-catch で囲み、エラー時も「成功」レスポンスを返す
+
+例: 抽選処理で内部エラーが発生した場合でも、以下のレスポンスが返る
+```json
+{ "message": "抽選が完了しました", "total": 0, "winners": 0, "losers": 0 }
+```
+
+実際にはDBへの書き込みが失敗しているにもかかわらず、HTTPステータス200で「成功」として返却されるため、フロントエンド側では異常を検知できない。
 
 ---
 
