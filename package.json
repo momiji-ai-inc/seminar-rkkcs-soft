@@ -1,18 +1,15 @@
 {
   "name": "seminar-rkkcs-soft",
-  "version": "1.0.0",
-  "description": "ライブ抽選アプリ - RKKCS社内研修ハンズオン教材",
   "private": true,
+  "description": "ライブ抽選アプリ",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run serve",
-    "build": "cd frontend && npm run build",
-    "seed": "cd backend && npm run seed",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run serve\"",
+    "setup": "npm install && npm run reset",
+    "reset": "node -e \"require('fs').rmSync('backend/lottery.db',{force:true})\" && cd backend && npm run seed",
+    "postinstall": "npm install --prefix backend && npm install --prefix frontend",
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
