@@ -1,5 +1,6 @@
 {
   "name": "seminar-rkkcs-soft",
+  "private": true,
   "description": "ライブ抽選アプリ",
   "type": "module",
   "scripts": {
