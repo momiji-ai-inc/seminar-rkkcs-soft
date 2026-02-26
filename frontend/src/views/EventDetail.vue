@@ -62,16 +62,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { Event } from '@/types';
-import { getEvent } from '@/services/api';
+import { ref, watch, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { Event, Application } from '@/types';
+import { getEvent, getApplications } from '@/services/api';
 import ApplicationForm from '@/components/ApplicationForm.vue';
 
 const route = useRoute();
+const router = useRouter();
 const event = ref<Event | null>(null);
 const loading = ref(true);
 const error = ref('');
+const debugMode = false;
+const MAX_RETRY_COUNT = 3;
 
 onMounted(async () => {
   try {
