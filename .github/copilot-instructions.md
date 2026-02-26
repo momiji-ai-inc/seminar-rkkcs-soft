@@ -70,3 +70,4 @@ DBファイル: `backend/lottery.db`
 
 ### Pull Request
 - `docs/pull_request_template.md` のテンプレートに従って記述する
+- ブランチのコミット履歴を遡って、PRテンプレに記載する
