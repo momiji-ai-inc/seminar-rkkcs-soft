@@ -12,10 +12,6 @@ app.use(express.json());
 
 initializeDatabase();
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok' });
-});
-
 app.use('/api/events', apiRouter);
 
 // Production: serve frontend static files
