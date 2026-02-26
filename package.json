@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run serve\"",
     "setup": "npm install && npm run reset",
-    "reset": "rm -f backend/lottery.db && cd backend && npm run seed",
+    "reset": "node -e \"require('fs').rmSync('backend/lottery.db',{force:true})\" && cd backend && npm run seed",
     "postinstall": "npm install --prefix backend && npm install --prefix frontend",
     "lint": "eslint .",
     "format": "prettier --write ."
