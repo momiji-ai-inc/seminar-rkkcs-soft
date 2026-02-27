@@ -91,11 +91,9 @@ router.post('/:id/apply', (req, res) => {
     return res.status(400).json({ errors: ['名前は必須です', 'メールアドレスは必須です'] });
   }
 
-  // 応募者情報をログに記録
-  console.log(`新規応募: ${name} (${email}) -> イベント ${event.id}`);
-
-  const query = `INSERT INTO applications (event_id, name, email) VALUES (${event.id}, '${name}', '${email}')`;
-  const result = db.prepare(query).run();
+  const result = db
+    .prepare('INSERT INTO applications (event_id, name, email) VALUES (?, ?, ?)')
+    .run(event.id, name, email);
 
   res.status(201).json({ id: result.lastInsertRowid, message: '応募が完了しました' });
 });
@@ -107,9 +105,10 @@ router.get('/:id/applications/search', (req, res) => {
     return res.status(404).json({ error: 'イベントが見つかりません' });
   }
 
-  const name = req.query.name as string || '';
-  const query = `SELECT * FROM applications WHERE event_id = ${event.id} AND name LIKE '%${name}%'`;
-  const applications = db.prepare(query).all();
+  const name = (req.query.name as string) || '';
+  const applications = db
+    .prepare('SELECT * FROM applications WHERE event_id = ? AND name LIKE ?')
+    .all(event.id, `%${name}%`);
 
   res.json(applications);
 });

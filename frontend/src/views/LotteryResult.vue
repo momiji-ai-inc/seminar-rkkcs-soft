@@ -51,8 +51,7 @@
             >
               <div class="d-flex align-items-center gap-3">
                 <div class="flex-grow-1">
-                  <!-- 名前に装飾タグを使えるようにする -->
-                  <div class="fw-bold" v-html="w.name"></div>
+                  <div class="fw-bold">{{ w.name }}</div>
                   <small class="text-muted">{{ w.email }}</small>
                 </div>
                 <span class="badge bg-success">当選</span>
@@ -87,7 +86,7 @@
                 <tbody>
                   <tr v-for="(l, i) in result.losers" :key="l.id">
                     <td>{{ i + 1 }}</td>
-                    <td v-html="l.name"></td>
+                    <td>{{ l.name }}</td>
                     <td>{{ l.email }}</td>
                   </tr>
                 </tbody>
